@@ -88,6 +88,26 @@ class ImpersonatorTestCase(unittest.TestCase):
         self.assertEqual(client.token, None)
 
 
+    @mock.patch('requests.post', side_effect=mock_post_request)
+    def test_login_with_private_key(self, mock_post):
+        client = Impersonator()
+
+        credentials = {
+            'username': 'username',
+            'privateKey': 'privateKey'
+        }
+        login_endpoint = "http://%s:%d/%s" % (
+            client.host,
+            client.port,
+            client.token_endpoint
+        )
+
+        token = client.login(username=credentials['username'], private_key=credentials['privateKey'])
+
+        self.assertIn(mock.call(login_endpoint, json=credentials), mock_post.call_args_list)
+        self.assertEqual(token, MOCK_TOKEN)
+
+
     @mock.patch('requests.post', side_effect=mock_login_failure)
     def test_login_failure(self, mock_post):
         client = Impersonator()
@@ -107,6 +127,24 @@ class ImpersonatorTestCase(unittest.TestCase):
 
         self.assertIn(mock.call(endpoint, json=credentials), mock_post.call_args_list)
         self.assertEqual(MOCK_ERROR, str(context.exception))
+
+
+    def test_login_without_password_or_key_throws_exception(self):
+        client = Impersonator()
+
+        credentials = {
+            'username': 'username'
+        }
+        endpoint = "http://%s:%d/%s" % (
+            client.host,
+            client.port,
+            client.token_endpoint
+        )
+
+        with self.assertRaises(Exception) as context:
+            token = client.login(**credentials)
+
+        self.assertEqual("Either password or private_key must be provided to login", str(context.exception))
 
 
     @mock.patch('requests.post', side_effect=mock_post_request)

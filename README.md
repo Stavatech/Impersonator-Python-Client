@@ -56,12 +56,13 @@ Parameters:
 
 ### Login
 ```python
-token = client.login(username = 'username', password = 'password', host = "127.0.0.1", port = 22)
+token = client.login(username = 'username', password = 'password', private_key = 'key_string', host = "127.0.0.1", port = 22)
 ```
 
 Parameters:
-* `username` - The username of the user account to SSH into.
-* `password` - The password of the user account to SSH into.
+* `username` - The username of the user account to SSH into (required).
+* `password` - The password of the user account to SSH into (required if `private_key` not provided).
+* `private_key` - A private SSH key used to access the user account (required if `password` not provided).
 * `host` - The host to SSH into (defaults to `127.0.0.1`).
 * `port` - The port that SSH is running on (defaults to `22`).
 
