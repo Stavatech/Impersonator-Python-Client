@@ -2,24 +2,30 @@ import requests, json
 
 class Impersonator(object):
 
-    def __init__(self, host = "127.0.0.1", port = 31000, token=None, token_endpoint="tokens", command_endpoint=""):
+    def __init__(self, host="127.0.0.1", port=31000, token=None, token_endpoint="tokens", command_endpoint=""):
         self.host = host
         self.port = port
         self.token = token
         self.token_endpoint = token_endpoint
         self.command_endpoint = command_endpoint
 
-    def login(self, username, password):
+    def login(self, username, password=None, private_key=None):
         endpoint = "http://%s:%d/%s" % (self.host, self.port, self.token_endpoint)
         payload = {
-            "username": username,
-            "password": password
+            "username": username
         }
+
+        if password is not None:
+            payload["password"] = password
+        elif private_key is not None:
+            payload["privateKey"] = private_key
+        else:
+            raise Exception("Either password or private_key must be provided to login")
 
         r = requests.post(endpoint, json=payload)
 
         if r.status_code == requests.codes.ok:
-            self.token =  r.text
+            self.token = r.text
         else:
             raise Exception(r.text)
 
